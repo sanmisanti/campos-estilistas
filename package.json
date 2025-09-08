@@ -12,7 +12,8 @@
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "import:clients": "tsx scripts/import-clients.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
