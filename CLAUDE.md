@@ -414,6 +414,11 @@ CREATE INDEX idx_audit_logs_table_record ON AuditLogs(table_name, record_id);
 - **UI Framework**: Shadcn/UI instalado y configurado con tema Stone
 - **Panel de administración**: Layout profesional con sidebar, navegación y dashboard
 - **Documentación**: Guía de Prisma y directivas para desarrollo
+- **🆕 Importación masiva de datos**:
+  - **3,547 clientes** importados desde CSV con validaciones
+  - **8 profesionales** importados desde JSON con especialidades
+  - **12 usuarios** creados con roles y vinculación automática
+- **🆕 Scripts de importación**: Sistema completo para migración de datos
 
 ### 📂 Estructura Actual
 ```
@@ -436,6 +441,15 @@ prisma/
 ├── migrations/                # Migraciones aplicadas
 └── seed.ts                   # Script de datos maestros
 
+scripts/                       # 🆕 Scripts de importación
+├── import-clients.ts          # Importar clientes desde CSV
+├── import-professionals.ts    # Importar profesionales desde JSON
+└── import-users.ts           # Crear usuarios y vincular profesionales
+
+extra_data/                    # 🆕 Datos fuente para importación
+├── clientes.csv              # 3,547 clientes del sistema anterior
+└── profesionales.json       # 12 profesionales con roles
+
 DOCS/
 └── prisma.md                 # Guía de comandos Prisma
 
@@ -445,11 +459,71 @@ CLAUDE_INSTRUCTIONS/
 
 ### 🔧 Scripts Configurados
 ```bash
+# Desarrollo
 npm run dev              # Desarrollo con Turbopack
+npm run build            # Build de producción
+npm run start            # Servidor de producción
+
+# Base de datos
 npm run db:generate      # Generar cliente Prisma
 npm run db:migrate       # Crear migraciones
 npm run db:seed          # Poblar datos maestros
 npm run db:studio        # Interfaz visual de BD
+
+# 🆕 Importación de datos
+npm run import:clients       # Importar 3,547 clientes desde CSV
+npm run import:professionals # Importar 8 profesionales desde JSON
+npm run import:users        # Crear 12 usuarios con roles y vinculación
+```
+
+## 📊 Sistema de Importación de Datos
+
+### 🎯 Resumen de Importación Completada
+
+| Entidad | Registros | Origen | Script | Estado |
+|---------|-----------|---------|---------|---------|
+| **Clientes** | 3,547 | `clientes.csv` | `import-clients.ts` | ✅ Completado |
+| **Profesionales** | 8 | `profesionales.json` | `import-professionals.ts` | ✅ Completado |
+| **Usuarios** | 12 | `profesionales.json` | `import-users.ts` | ✅ Completado |
+
+### 🔧 Características de los Scripts
+
+#### `import-clients.ts`
+- **Fuente**: CSV con separador `;` y encoding UTF-8
+- **Validaciones**: Emails, teléfonos, fechas de nacimiento
+- **Procesamiento**: Lotes de 50 registros para optimización
+- **Datos**: 59 clientes con fechas de nacimiento válidas
+- **Limpieza**: Capitalización automática de nombres
+
+#### `import-professionals.ts`
+- **Fuente**: JSON estructurado del sistema anterior
+- **Filtrado**: Solo profesionales con `show=1` (pueden atender clientes)
+- **Especialidades**: Mapeo automático basado en descripción del puesto
+- **Estados**: Todos marcados como "Activo"
+- **Omitidos**: 4 administrativos (se procesan en import-users)
+
+#### `import-users.ts`
+- **Generación**: Emails automáticos (`nombre.apellido@camposestilistas.com`)
+- **Roles**: Máximo Movsovich → Manager, resto → Staff
+- **Vinculación**: Usuarios linkados automáticamente con profesionales
+- **Seguridad**: Contraseñas hasheadas con bcrypt
+- **Credenciales**: Contraseña temporal `Campos2024!` para todos
+
+### 📈 Estadísticas de Base de Datos
+
+```
+📊 Datos en producción:
+├── 37 registros de catálogo (especialidades, estados, etc.)
+├── 3,547 clientes con historiales
+├── 8 profesionales activos
+├── 12 usuarios del sistema
+└── 4 roles configurados (Super Admin, Manager, Staff, Client)
+
+🎯 Datos listos para:
+├── Sistema de reservas
+├── Gestión de servicios  
+├── Asignación de horarios
+└── Panel administrativo
 ```
 
 ## 🚀 Roadmap de Desarrollo
@@ -458,8 +532,10 @@ npm run db:studio        # Interfaz visual de BD
 - [x] Configuración inicial del proyecto
 - [x] Diseño de base de datos y modelos
 - [x] Panel de administración base con Shadcn/UI
+- [x] **🆕 Importación masiva de datos del sistema anterior**
+- [x] **🆕 Gestión completa de usuarios y profesionales**
 - [ ] Autenticación básica
-- [ ] CRUD de profesionales y servicios
+- [ ] CRUD de servicios y asignación a profesionales
 - [ ] Sistema básico de reservas
 - [ ] Dashboard administrativo funcional
 

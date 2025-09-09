@@ -1,5 +1,9 @@
+"use client"
+
 import Link from 'next/link'
 import { ReactNode } from 'react'
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,6 +24,40 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false })
+    router.push('/login')
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-900 mx-auto mb-4"></div>
+          <p>Cargando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session) {
+    router.push('/login')
+    return null
+  }
+
+  // Obtener iniciales del nombre
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
+  }
+
   const navigationItems = [
     {
       title: "Dashboard",
@@ -122,16 +160,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center space-x-3">
               <Avatar>
                 <AvatarFallback className="bg-primary text-primary-foreground">
-                  AD
+                  {getInitials(session.user.name)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="text-sm font-medium">Admin User</p>
+                <p className="text-sm font-medium">{session.user.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  Administrador
+                  {session.user.role}
                 </p>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={handleLogout}
+                title="Cerrar sesión"
+              >
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
