@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -32,6 +32,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     router.push('/login')
   }
 
+  useEffect(() => {
+    if (status !== "loading" && !session) {
+      router.push('/login')
+    }
+  }, [session, status, router])
+
   if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -44,8 +50,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   if (!session) {
-    router.push('/login')
-    return null
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-900 mx-auto mb-4"></div>
+          <p>Redirigiendo...</p>
+        </div>
+      </div>
+    )
   }
 
   // Obtener iniciales del nombre
